@@ -4,36 +4,62 @@ namespace SupanthaPaul
 {
     public class Ladder : MonoBehaviour
     {
-        private bool isPlayerOnLadder = false; // Флаг, указывающий на присутствие игрока на лестнице
+        private bool isPlayerNearLadder = false; // Флаг, указывающий на то, что игрок зацепился за лестницу
+        private bool isPlayerOnLadder = false; // Флаг, указывающий на то, что игрок зацепился за лестницу
         private GameObject player = null; // Ссылка на игрока
 
         private void Update()
         {
+            
             if (isPlayerOnLadder) // Если игрок находится на лестнице
             {
                 float verticalInput = Input.GetAxis("Vertical"); // Получаем вертикальное значение ввода от игрока
+                Debug.Log("player: " + player);
+                Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
+                rb.Sleep();
                 if (verticalInput > 0f) // Если игрок двигается вверх
                 {
                     MoveUpLadder(); // Вызываем метод для перемещения игрока вверх по лестнице
+                    Debug.Log("Двигаемся вверх");
                 }
                 else if (verticalInput < 0f) // Если игрок двигается вниз
                 {
                     MoveDownLadder(); // Вызываем метод для перемещения игрока вниз по лестнице
-                }
-
+                    Debug.Log("Двигаемся вниз");
+                }                
                 if (Input.GetKeyDown(KeyCode.E)) // Если игрок нажимает клавишу "E"
                 {
+                    Debug.Log("Кнопка Е нажата на лестнице: " + Input.GetKeyDown(KeyCode.E));
                     DetachFromLadder(); // Вызываем метод для отсоединения игрока от лестницы
                 }
             }
+            
+            if (isPlayerNearLadder && !isPlayerOnLadder)
+            {
+                if (Input.GetKeyDown(KeyCode.E))
+                {
+                    isPlayerOnLadder = true;
+                    Debug.Log("Кнопка Е нажата у лестницы, isPlayerOnLadder=" + isPlayerOnLadder);
+                }
+            }
+
         }
 
         private void OnTriggerEnter2D(Collider2D collision)
         {
-            if (collision.CompareTag("Player")) // Если столкновение с объектом, помеченным тегом "Player"
+            if (collision.CompareTag("Player")) // Если столкновение с объектом, помеченным тегом "Player" (мы у лестницы)
             {
-                isPlayerOnLadder = true; // Устанавливаем флаг, что игрок находится на лестнице
-                player = collision.gameObject; // Сохраняем ссылку на игрока
+                Debug.Log("Подошли");
+                isPlayerNearLadder = true;
+                player = collision.gameObject;
+                if (Input.GetKeyDown(KeyCode.E))
+                {
+                    Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
+                    Debug.Log("Зацепились: " + Input.GetKeyDown(KeyCode.E));
+                    rb.Sleep();
+                    isPlayerOnLadder = true; // Устанавливаем флаг, что игрок находится на лестнице
+                     // Сохраняем ссылку на игрока
+                }
             }
         }
 
@@ -52,6 +78,7 @@ namespace SupanthaPaul
 			PlayerController playerController = player.GetComponent<PlayerController>(); // Получаем компонент PlayerController игрока
 
 			rb.Sleep(); // Отключаем физику объекта rb
+            //TODO: занулить первый компонент вектора скорости
 			rb.velocity = new Vector2(rb.velocity.x, playerController.climbSpeed); // Задаем скорость перемещения игрока по вертикали вверх
 		}
 
@@ -60,7 +87,8 @@ namespace SupanthaPaul
             Rigidbody2D rb = player.GetComponent<Rigidbody2D>(); // Получаем компонент Rigidbody2D игрока
             PlayerController playerController = player.GetComponent<PlayerController>(); // Получаем компонент PlayerController игрока
 			
-			rb.gravityScale = 0f;
+			rb.Sleep();
+            //TODO: занулить первый компонент вектора скорости
             rb.velocity = new Vector2(rb.velocity.x, -playerController.climbSpeed); // Задаем скорость перемещения игрока по вертикали вниз
         }
 
@@ -69,10 +97,12 @@ namespace SupanthaPaul
             Rigidbody2D rb = player.GetComponent<Rigidbody2D>(); // Получаем компонент Rigidbody2D игрока
             PlayerController playerController = player.GetComponent<PlayerController>(); // Получаем компонент PlayerController игрока
 			
-			rb.gravityScale = playerController.defaultGravityScale;
+			
             rb.velocity = Vector2.zero; // Сбрасываем скорость перемещения игрока
-            rb.gravityScale = playerController.defaultGravityScale; // Восстанавливаем коэффициент гравитации игрока до значения по умолчанию
-            playerController.canMove = true; // Устанавливаем флаг, что игрок может двигаться
+            rb.gravityScale = 1; // Восстанавливаем коэффициент гравитации игрока до значения по умолчанию
+            isPlayerOnLadder = false;
+            rb.WakeUp();
+            // playerController.canMove = true; // Устанавливаем флаг, что игрок может двигаться
         }
     }
 }
