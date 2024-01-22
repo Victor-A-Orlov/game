@@ -7,12 +7,14 @@ namespace SupanthaPaul
         private bool isPlayerNearLadder = false; // Флаг, указывающий на то, что игрок зацепился за лестницу
         private bool isPlayerOnLadder = false; // Флаг, указывающий на то, что игрок зацепился за лестницу
         private GameObject player = null; // Ссылка на игрока
-
+    
         private void Update()
         {
             
             if (isPlayerOnLadder) // Если игрок находится на лестнице
             {
+                PlayerController playerController = player.GetComponent<PlayerController>();
+                // playerController.canMove = false;
                 float verticalInput = Input.GetAxis("Vertical"); // Получаем вертикальное значение ввода от игрока
                 Debug.Log("player: " + player);
                 Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
@@ -39,7 +41,7 @@ namespace SupanthaPaul
             {
                 if (Input.GetKeyDown(KeyCode.E))
                 {
-                    isPlayerOnLadder = true;
+                    AttachToLadder();
                     Debug.Log("Кнопка Е нажата у лестницы, isPlayerOnLadder=" + isPlayerOnLadder);
                 }
             }
@@ -64,6 +66,7 @@ namespace SupanthaPaul
         {
             Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
             PlayerController playerController = player.GetComponent<PlayerController>();
+            playerController.canMove = false;
             Debug.Log("Зацепились: " + Input.GetKeyDown(KeyCode.E));
             rb.Sleep();
             isPlayerOnLadder = true; // Устанавливаем флаг, что игрок находится на лестнице
