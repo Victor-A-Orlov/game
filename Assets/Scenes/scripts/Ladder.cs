@@ -17,6 +17,7 @@ namespace SupanthaPaul
                 Debug.Log("player: " + player);
                 Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
                 rb.Sleep();
+                
                 if (verticalInput > 0f) // Если игрок двигается вверх
                 {
                     MoveUpLadder(); // Вызываем метод для перемещения игрока вверх по лестнице
@@ -54,13 +55,18 @@ namespace SupanthaPaul
                 player = collision.gameObject;
                 if (Input.GetKeyDown(KeyCode.E))
                 {
-                    Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
-                    Debug.Log("Зацепились: " + Input.GetKeyDown(KeyCode.E));
-                    rb.Sleep();
-                    isPlayerOnLadder = true; // Устанавливаем флаг, что игрок находится на лестнице
-                     // Сохраняем ссылку на игрока
+                    AttachToLadder();
                 }
             }
+        }
+
+        private void AttachToLadder()
+        {
+            Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
+            PlayerController playerController = player.GetComponent<PlayerController>();
+            Debug.Log("Зацепились: " + Input.GetKeyDown(KeyCode.E));
+            rb.Sleep();
+            isPlayerOnLadder = true; // Устанавливаем флаг, что игрок находится на лестнице
         }
 
         private void OnTriggerExit2D(Collider2D collision)
