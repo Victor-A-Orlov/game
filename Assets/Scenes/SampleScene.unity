@@ -4283,7 +4283,7 @@ PrefabInstance:
     - target: {fileID: 1865938915375051438, guid: 3c02ac99ebd71b24cb0f7c53261c4241,
         type: 3}
       propertyPath: climbSpeed
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 1865938915375051438, guid: 3c02ac99ebd71b24cb0f7c53261c4241,
         type: 3}

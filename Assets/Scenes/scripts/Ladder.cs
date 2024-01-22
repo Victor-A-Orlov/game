@@ -8,12 +8,14 @@ namespace SupanthaPaul
         private bool isPlayerNearLadder = false; // Флаг, указывающий на то, что игрок подошел к лестнице
         private bool isPlayerOnLadder = false; // Флаг, указывающий на то, что игрок зацепился за лестницу
         private GameObject player = null; // Ссылка на игрока
-
+    
         private void Update()
         {
             
             if (isPlayerOnLadder) // Если игрок находится на лестнице
             {
+                PlayerController playerController = player.GetComponent<PlayerController>();
+                // playerController.canMove = false;
                 float verticalInput = Input.GetAxis("Vertical"); // Получаем вертикальное значение ввода от игрока
                 float horizontalInput = 0f; // Отключение горизонтального перемещения
 
@@ -21,7 +23,6 @@ namespace SupanthaPaul
                 Rigidbody2D rb = player.GetComponent<Rigidbody2D>(); 
                 rb.velocity = new Vector2(horizontalInput, rb.velocity.y); // Занулить первую компоненту вектора скорости
                 rb.Sleep();
-                
                 
                 if (verticalInput > 0f) // Если игрок двигается вверх
                 {
@@ -44,7 +45,7 @@ namespace SupanthaPaul
             {
                 if (Input.GetKeyDown(KeyCode.E))
                 {
-                    isPlayerOnLadder = true;
+                    AttachToLadder();
                     Debug.Log("Кнопка Е нажата у лестницы, isPlayerOnLadder=" + isPlayerOnLadder);
                 }
             }
@@ -60,13 +61,19 @@ namespace SupanthaPaul
                 player = collision.gameObject;
                 if (Input.GetKeyDown(KeyCode.E))
                 {
-                    Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
-                    Debug.Log("Зацепились: " + Input.GetKeyDown(KeyCode.E));
-                    rb.Sleep();
-                    isPlayerOnLadder = true; // Устанавливаем флаг, что игрок находится на лестнице
-                     // Сохраняем ссылку на игрока
+                    AttachToLadder();
                 }
             }
+        }
+
+        private void AttachToLadder()
+        {
+            Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
+            PlayerController playerController = player.GetComponent<PlayerController>();
+            playerController.canMove = false;
+            Debug.Log("Зацепились: " + Input.GetKeyDown(KeyCode.E));
+            rb.Sleep();
+            isPlayerOnLadder = true; // Устанавливаем флаг, что игрок находится на лестнице
         }
 
         private void OnTriggerExit2D(Collider2D collision)
@@ -85,8 +92,7 @@ namespace SupanthaPaul
 
 			rb.Sleep(); // Отключаем физику объекта rb
             //TODO: занулить первый компонент вектора скорости
-			rb.velocity = new Vector2(rb.velocity.x, playerController.climbSpeed); // Задаем скорость перемещения игрока по вертикали вверх
-            rb.velocity = new Vector2(0f, rb.velocity.y); // Зануляем горизонтальную компоненту вектора скорости
+			rb.velocity = new Vector2(0, playerController.climbSpeed); // Задаем скорость перемещения игрока по вертикали вверх
 		}
 
         private void MoveDownLadder()
@@ -96,8 +102,7 @@ namespace SupanthaPaul
 			
 			rb.Sleep();
             //TODO: занулить первый компонент вектора скорости
-            rb.velocity = new Vector2(0f, -playerController.climbSpeed); // Задаем скорость перемещения игрока по вертикали вниз
-                rb.velocity = new Vector2(0f, rb.velocity.y); // Зануляем горизонтальную компоненту вектора скорости
+            rb.velocity = new Vector2(0, -playerController.climbSpeed); // Задаем скорость перемещения игрока по вертикали вниз
         }
 
         private void DetachFromLadder()
