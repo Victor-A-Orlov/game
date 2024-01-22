@@ -79,7 +79,7 @@ namespace SupanthaPaul
 
 			rb.Sleep(); // Отключаем физику объекта rb
             //TODO: занулить первый компонент вектора скорости
-			rb.velocity = new Vector2(rb.velocity.x, playerController.climbSpeed); // Задаем скорость перемещения игрока по вертикали вверх
+			rb.velocity = new Vector2(0, playerController.climbSpeed); // Задаем скорость перемещения игрока по вертикали вверх
 		}
 
         private void MoveDownLadder()
@@ -89,7 +89,7 @@ namespace SupanthaPaul
 			
 			rb.Sleep();
             //TODO: занулить первый компонент вектора скорости
-            rb.velocity = new Vector2(rb.velocity.x, -playerController.climbSpeed); // Задаем скорость перемещения игрока по вертикали вниз
+            rb.velocity = new Vector2(0, -playerController.climbSpeed); // Задаем скорость перемещения игрока по вертикали вниз
         }
 
         private void DetachFromLadder()

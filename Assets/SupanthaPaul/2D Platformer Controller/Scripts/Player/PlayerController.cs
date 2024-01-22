@@ -57,7 +57,7 @@ public class PlayerController : MonoBehaviour
 	private float m_wallStick = 0f;
 	private bool m_wallJumping = false;
 	private float m_dashCooldown;
-	public float climbSpeed; // Определяет скорость движения по лестнице
+	public float climbSpeed = 1; // Определяет скорость движения по лестнице
 	public float defaultGravityScale;
 
 	// 0 -> none, 1 -> right, -1 -> left
