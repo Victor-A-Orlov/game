@@ -3,66 +3,67 @@
 
 namespace SupanthaPaul
 {
-public class PlayerController : MonoBehaviour
-{
-[SerializeField] private float speed;
-[Header("Jumping")]
-[SerializeField] private float jumpForce;
-[SerializeField] private float fallMultiplier;
-[SerializeField] private Transform groundCheck;
-[SerializeField] private float groundCheckRadius;
-[SerializeField] private LayerMask whatIsGround;
-[SerializeField] private int extraJumpCount = 1;
-[SerializeField] private GameObject jumpEffect;
-[Header("Dashing")]
-[SerializeField] private float dashSpeed = 30f;
-[Tooltip("Amount of time (in seconds) the player will be in the dashing speed")]
-[SerializeField] private float startDashTime = 0.1f;
-[Tooltip("Time (in seconds) between dashes")]
-[SerializeField] private float dashCooldown = 0.2f;
-[SerializeField] private GameObject dashEffect;
+  public class PlayerController : MonoBehaviour
+  {
+    // Сериализованные переменные, доступные для редактирования через инспектор Unity
+    [SerializeField] private float speed; // Скорость движения игрока
+    [Header("Jumping")]
+    [SerializeField] private float jumpForce; // Сила прыжка
+    [SerializeField] private float fallMultiplier; // Коэффициент ускорения падения
+    [SerializeField] private Transform groundCheck; // Точка, откуда выпускается луч для проверки земли
+    [SerializeField] private float groundCheckRadius; // Радиус луча для проверки земли
+    [SerializeField] private LayerMask whatIsGround; // Слои, считающиеся землей
+    [SerializeField] private int extraJumpCount = 1; // Количество дополнительных прыжков
+    [SerializeField] private GameObject jumpEffect; // Префаб эффекта прыжка
+    [Header("Dashing")]
+    [SerializeField] private float dashSpeed = 30f; // Скорость рывка
+    [Tooltip("Amount of time (in seconds) the player will be in the dashing speed")]
+    [SerializeField] private float startDashTime = 0.1f; // Время, в течение которого игрок будет находиться со скоростью рывка
+    [Tooltip("Time (in seconds) between dashes")]
+    [SerializeField] private float dashCooldown = 0.2f; // Время между рывками
+    [SerializeField] private GameObject dashEffect; // Префаб эффекта рывка
 
-	// Access needed for handling animation in Player script and other uses
-	[HideInInspector] public bool isGrounded;
-	[HideInInspector] public float moveInput;
-	[HideInInspector] public bool canMove = true;
-	[HideInInspector] public bool isDashing = false;
-	[HideInInspector] public bool actuallyWallGrabbing = false;
-	// controls whether this instance is currently playable or not
-	[HideInInspector] public bool isCurrentlyPlayable = false;
+    // Переменные для контроля состояния игрока
+    [HideInInspector] public bool isGrounded; // Находится ли игрок на земле
+    [HideInInspector] public float moveInput; // Ввод от игрока для горизонтального перемещения
+    [HideInInspector] public bool canMove = true; // Может ли игрок перемещаться
+    [HideInInspector] public bool isDashing = false; // Выполняется ли рывок
+    [HideInInspector] public bool actuallyWallGrabbing = false; // Определяет, действительно ли игрок удерживается на стене
+    [HideInInspector] public bool isCurrentlyPlayable = false; // Определяет, является ли этот экземпляр в данный момент играбельным
 
-	[Header("Wall grab & jump")]
-	[Tooltip("Right offset of the wall detection sphere")]
-	public Vector2 grabRightOffset = new Vector2(0.16f, 0f);
-	public Vector2 grabLeftOffset = new Vector2(-0.16f, 0f);
-	public float grabCheckRadius = 0.24f;
-	public float slideSpeed = 2.5f;
-	public Vector2 wallJumpForce = new Vector2(10.5f, 18f);
-	public Vector2 wallClimbForce = new Vector2(4f, 14f);
+    [Header("Wall grab & jump")]
+    [Tooltip("Right offset of the wall detection sphere")]
+    public Vector2 grabRightOffset = new Vector2(0.16f, 0f); // Смещение для определения стены справа от игрока
+    public Vector2 grabLeftOffset = new Vector2(-0.16f, 0f); // Смещение для определения стены слева от игрока
+    public float grabCheckRadius = 0.24f; // Радиус сферы для определения стены
+    public float slideSpeed = 2.5f; // Скорость скольжения по стене
+    public Vector2 wallJumpForce = new Vector2(10.5f, 18f); // Сила прыжка от стены
+    public Vector2 wallClimbForce = new Vector2(4f, 14f); // Сила вертикального перемещения по стене
 
-	private Rigidbody2D m_rb;
-	private ParticleSystem m_dustParticle;
-	private bool m_facingRight = true;
-	private readonly float m_groundedRememberTime = 0.25f;
-	private float m_groundedRemember = 0f;
-	private int m_extraJumps;
-	private float m_extraJumpForce;
-	private float m_dashTime;
-	private bool m_hasDashedInAir = false;
-	private bool m_onWall = false;
-	private bool m_onRightWall = false;
-	private bool m_onLeftWall = false;
-	private bool m_wallGrabbing = false;
-	private readonly float m_wallStickTime = 0.25f;
-	private float m_wallStick = 0f;
-	private bool m_wallJumping = false;
-	private float m_dashCooldown;
-	public float climbSpeed; // Определяет скорость движения по лестнице
-	public float defaultGravityScale;
+    private Rigidbody2D m_rb; // Компонент Rigidbody2D игрока
+    private ParticleSystem m_dustParticle; // Компонент ParticleSystem для пыли
+    private bool m_facingRight = true; // Определяет, смотрит ли игрок вправо
+    private readonly float m_groundedRememberTime = 0.25f; // Время, в течение которого игрок считается на земле после падения
+    private float m_groundedRemember = 0f; // Таймер для определения, находится ли игрок на земле
+    private int m_extraJumps; // Количество доступных дополнительных прыжков
+    private float m_extraJumpForce; // Сила дополнительного прыжка
+    private float m_dashTime; // Таймер рывка
+    private bool m_hasDashedInAir = false; // Определяет, выполнил ли игрок рывок в воздухе
+    private bool m_onWall = false; // Находится ли игрок на стене
+    private bool m_onRightWall = false; // Находится ли игрок на правой стене
+    private bool m_onLeftWall = false; // Находится ли игрок на левой стене
+    private bool m_wallGrabbing = false; // Определяет, удерживается ли игрок на стене
+    private readonly float m_wallStickTime = 0.25f; // Время удерживания игрока на стене
+    private float m_wallStick = 0f; // Таймер удерживания игрока на стене
+    private bool m_wallJumping = false; // Определяет, выполняет ли игрок прыжок от стены
+    private float m_dashCooldown; // Таймер между рывками
+    public float climbSpeed; // Определяет скорость движения по лестнице
+    public float defaultGravityScale;
 
-	// 0 -> none, 1 -> right, -1 -> left
-	private int m_onWallSide = 0;
-	private int m_playerSide = 1;
+
+    // 0 -> none, 1 -> right, -1 -> left
+    private int m_onWallSide = 0; // Определяет сторону стены, на которой находится игрок (0 - не на стене, 1 - правая стена, -1 - левая стена)
+    private int m_playerSide = 1; // Определяет сторону, куда смотрит игрок (1 - вправо, -1 - влево)
 
 
 	void Start()

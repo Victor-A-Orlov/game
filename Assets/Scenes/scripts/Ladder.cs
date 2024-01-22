@@ -4,7 +4,8 @@ namespace SupanthaPaul
 {
     public class Ladder : MonoBehaviour
     {
-        private bool isPlayerNearLadder = false; // Флаг, указывающий на то, что игрок зацепился за лестницу
+        bool canMoveHorizontally = true; // горизонтальное перемещение
+        private bool isPlayerNearLadder = false; // Флаг, указывающий на то, что игрок подошел к лестнице
         private bool isPlayerOnLadder = false; // Флаг, указывающий на то, что игрок зацепился за лестницу
         private GameObject player = null; // Ссылка на игрока
 
@@ -14,9 +15,14 @@ namespace SupanthaPaul
             if (isPlayerOnLadder) // Если игрок находится на лестнице
             {
                 float verticalInput = Input.GetAxis("Vertical"); // Получаем вертикальное значение ввода от игрока
-                Debug.Log("player: " + player);
-                Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
+                float horizontalInput = 0f; // Отключение горизонтального перемещения
+
+                Debug.Log("Вертикальное значение игрока" + player); 
+                Rigidbody2D rb = player.GetComponent<Rigidbody2D>(); 
+                rb.velocity = new Vector2(horizontalInput, rb.velocity.y); // Занулить первую компоненту вектора скорости
                 rb.Sleep();
+                
+                
                 if (verticalInput > 0f) // Если игрок двигается вверх
                 {
                     MoveUpLadder(); // Вызываем метод для перемещения игрока вверх по лестнице
@@ -80,6 +86,7 @@ namespace SupanthaPaul
 			rb.Sleep(); // Отключаем физику объекта rb
             //TODO: занулить первый компонент вектора скорости
 			rb.velocity = new Vector2(rb.velocity.x, playerController.climbSpeed); // Задаем скорость перемещения игрока по вертикали вверх
+            rb.velocity = new Vector2(0f, rb.velocity.y); // Зануляем горизонтальную компоненту вектора скорости
 		}
 
         private void MoveDownLadder()
@@ -89,7 +96,8 @@ namespace SupanthaPaul
 			
 			rb.Sleep();
             //TODO: занулить первый компонент вектора скорости
-            rb.velocity = new Vector2(rb.velocity.x, -playerController.climbSpeed); // Задаем скорость перемещения игрока по вертикали вниз
+            rb.velocity = new Vector2(0f, -playerController.climbSpeed); // Задаем скорость перемещения игрока по вертикали вниз
+                rb.velocity = new Vector2(0f, rb.velocity.y); // Зануляем горизонтальную компоненту вектора скорости
         }
 
         private void DetachFromLadder()
