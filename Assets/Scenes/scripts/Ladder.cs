@@ -7,10 +7,20 @@ namespace SupanthaPaul
         bool canMoveHorizontally = true; // горизонтальное перемещение
         private bool isPlayerNearLadder = false; // Флаг, указывающий на то, что игрок подошел к лестнице
         private bool isPlayerOnLadder = false; // Флаг, указывающий на то, что игрок зацепился за лестницу
+        private bool justAttachedToLadder = false;
         private GameObject player = null; // Ссылка на игрока
     
         private void Update()
         {
+            if (isPlayerNearLadder && !isPlayerOnLadder)
+            {
+                if (Input.GetKeyDown(KeyCode.E))
+                {
+                    AttachToLadder();
+                    Debug.Log("Кнопка Е нажата у лестницы, isPlayerOnLadder=" + isPlayerOnLadder);
+                    justAttachedToLadder = true;
+                }
+            }
             
             if (isPlayerOnLadder) // Если игрок находится на лестнице
             {
@@ -18,8 +28,6 @@ namespace SupanthaPaul
                 // playerController.canMove = false;
                 float verticalInput = Input.GetAxis("Vertical"); // Получаем вертикальное значение ввода от игрока
                 float horizontalInput = 0f; // Отключение горизонтального перемещения
-
-                Debug.Log("Вертикальное значение игрока" + player); 
                 Rigidbody2D rb = player.GetComponent<Rigidbody2D>(); 
                 rb.velocity = new Vector2(horizontalInput, rb.velocity.y); // Занулить первую компоненту вектора скорости
                 rb.Sleep();
@@ -36,19 +44,17 @@ namespace SupanthaPaul
                 }                
                 if (Input.GetKeyDown(KeyCode.E)) // Если игрок нажимает клавишу "E"
                 {
-                    Debug.Log("Кнопка Е нажата на лестнице: " + Input.GetKeyDown(KeyCode.E));
-                    DetachFromLadder(); // Вызываем метод для отсоединения игрока от лестницы
+                    if (!justAttachedToLadder)
+                    {
+                        Debug.Log("Кнопка Е нажата на лестнице: " + Input.GetKeyDown(KeyCode.E));
+                        DetachFromLadder(); // Вызываем метод для отсоединения игрока от лестницы
+                    }
                 }
             }
+
+            justAttachedToLadder = false;
             
-            if (isPlayerNearLadder && !isPlayerOnLadder)
-            {
-                if (Input.GetKeyDown(KeyCode.E))
-                {
-                    AttachToLadder();
-                    Debug.Log("Кнопка Е нажата у лестницы, isPlayerOnLadder=" + isPlayerOnLadder);
-                }
-            }
+
 
         }
 
@@ -59,10 +65,6 @@ namespace SupanthaPaul
                 Debug.Log("Подошли");
                 isPlayerNearLadder = true;
                 player = collision.gameObject;
-                if (Input.GetKeyDown(KeyCode.E))
-                {
-                    AttachToLadder();
-                }
             }
         }
 
@@ -114,6 +116,7 @@ namespace SupanthaPaul
             rb.velocity = Vector2.zero; // Сбрасываем скорость перемещения игрока
             rb.gravityScale = 1; // Восстанавливаем коэффициент гравитации игрока до значения по умолчанию
             isPlayerOnLadder = false;
+            playerController.canMove = true;
             rb.WakeUp();
             // playerController.canMove = true; // Устанавливаем флаг, что игрок может двигаться
         }
