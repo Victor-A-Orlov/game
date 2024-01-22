@@ -27,11 +27,8 @@ namespace SupanthaPaul
                 PlayerController playerController = player.GetComponent<PlayerController>();
                 // playerController.canMove = false;
                 float verticalInput = Input.GetAxis("Vertical"); // Получаем вертикальное значение ввода от игрока
-                float horizontalInput = 0f; // Отключение горизонтального перемещения
-                Rigidbody2D rb = player.GetComponent<Rigidbody2D>(); 
-                rb.velocity = new Vector2(horizontalInput, rb.velocity.y); // Занулить первую компоненту вектора скорости
-                rb.Sleep();
-                
+                immobilizePlayer();
+
                 if (verticalInput > 0f) // Если игрок двигается вверх
                 {
                     MoveUpLadder(); // Вызываем метод для перемещения игрока вверх по лестнице
@@ -41,7 +38,7 @@ namespace SupanthaPaul
                 {
                     MoveDownLadder(); // Вызываем метод для перемещения игрока вниз по лестнице
                     Debug.Log("Двигаемся вниз");
-                }                
+                }
                 if (Input.GetKeyDown(KeyCode.E)) // Если игрок нажимает клавишу "E"
                 {
                     if (!justAttachedToLadder)
@@ -56,6 +53,13 @@ namespace SupanthaPaul
             
 
 
+        }
+
+        private void immobilizePlayer()
+        {
+            Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
+            rb.velocity = new Vector2(0, rb.velocity.y); // Занулить первую компоненту вектора скорости
+            rb.Sleep();
         }
 
         private void OnTriggerEnter2D(Collider2D collision)
